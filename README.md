@@ -18,7 +18,7 @@ This Analysis determines the number of retiring employees per title, and identif
 Analysis 1. Number of retiring Employees
 
 - ~55% of the titles are Senior (Senior Engineer, Senior Staff) which will be difficult to backfilled with new hires in the short term
-- 2 Out of 9  will have their managers retiring, 
+- 2 Out of 9  will have their managers retiring
 - There are **17,940 retiring employees with unknown department**
 
 Retiring employees - Title Break down
@@ -31,17 +31,19 @@ Retiring employees - Department Break down
 
 Reference Below SQL group by the number of retiring employees by department:
 
-´´´
-SELECT d.dept_name, COUNT(*)
-FROM unique_titles ut
-LEFT JOIN (
-	SELECT emp_no, dept_no FROM dept_emp WHERE to_date = ('9999-01-01')
-	) de
-ON de.emp_no= ut.emp_no
-LEFT JOIN departments d on d.dept_no=de.dept_no
-GROUP BY d.dept_name ORDER BY d.dept_name
+```
 
-´´´
+    SELECT d.dept_name, COUNT(*)
+    FROM unique_titles ut
+    LEFT JOIN (
+        SELECT emp_no, dept_no FROM dept_emp WHERE to_date = ('9999-01-01')
+        ) de
+    ON de.emp_no= ut.emp_no
+    LEFT JOIN departments d on d.dept_no=de.dept_no
+    GROUP BY d.dept_name ORDER BY d.dept_name
+
+```
+
 
 Analysis 2. Mentorship Eligibility 
 
@@ -54,54 +56,53 @@ Elegible mentors - Department Break down
 
 Reference below SQL group by the number of elegible mentors by department:
 
-´´´
-SELECT d.dept_name, COUNT(*)
-FROM mentorship_eligibilty me
-LEFT JOIN (
-	SELECT emp_no, dept_no FROM dept_emp WHERE to_date = ('9999-01-01')
-	) de
-ON de.emp_no= me.emp_no
-LEFT JOIN departments d on d.dept_no=de.dept_no
-GROUP BY d.dept_name ORDER BY d.dept_name
+```
+    SELECT d.dept_name, COUNT(*)
+    FROM mentorship_eligibilty me
+    LEFT JOIN (
+        SELECT emp_no, dept_no FROM dept_emp WHERE to_date = ('9999-01-01')
+        ) de
+    ON de.emp_no= me.emp_no
+    LEFT JOIN departments d on d.dept_no=de.dept_no
+    GROUP BY d.dept_name ORDER BY d.dept_name
 
-´´´
-
+```
 
 ### Mentorship Query enhancement
 
 Bason on my analysis the mentorship_eligibilty table does not show the current employee title as the DISTINCT ON statement was instructed to ORDER BY emp_no only this would randomly return the employee title from titles table, in order to fix/force the query for returning the current employe title below order must be applied: 
 
-´´´
+```
     ORDER BY e.emp_no ASC, t.to_date DESC
-´´´
+```
 
 The complete query would look as follows:
 
-´´´
-SELECT DISTINCT ON (e.emp_no)
-e.emp_no,
-e.first_name,
-e.last_name,
-e.birth_date,
-de.from_date,
-de.to_date,
-t.title
-INTO mentorship_eligibilty
-FROM employees e
-INNER JOIN dept_emp de ON de.emp_no=e.emp_no
-INNER JOIN titles t ON t.emp_no=e.emp_no
-WHERE de.to_date = ('9999-01-01')
-AND e.birth_date BETWEEN '1965-01-01' AND '1965-12-31'
-ORDER BY e.emp_no ASC, t.to_date DESC;
-´´´
+```
+    SELECT DISTINCT ON (e.emp_no)
+    e.emp_no,
+    e.first_name,
+    e.last_name,
+    e.birth_date,
+    de.from_date,
+    de.to_date,
+    t.title
+    INTO mentorship_eligibilty
+    FROM employees e
+    INNER JOIN dept_emp de ON de.emp_no=e.emp_no
+    INNER JOIN titles t ON t.emp_no=e.emp_no
+    WHERE de.to_date = ('9999-01-01')
+    AND e.birth_date BETWEEN '1965-01-01' AND '1965-12-31'
+    ORDER BY e.emp_no ASC, t.to_date DESC;
+```
 
 i.e. below employees had two different titles, the fixed query will return their current title. 
 
-´´´
-select * from titles where emp_no=10291;--current title is Senior Staff instead of Staff
+```
+    select * from titles where emp_no=10291;--current title is Senior Staff instead of Staff
 
-select * from titles where emp_no=12155;--current title is Senior Engineer instead of Engineer
-´´´
+    select * from titles where emp_no=12155;--current title is Senior Engineer instead of Engineer
+```
 
 
 ## Summary 
@@ -111,9 +112,9 @@ Business Recommendation (assuming that the analyzed data is correct/accurate)
 - How many roles will need to be filled as the "silver tsunami" begins to make an impact?
     **90,398 employees**
 
-´´´
-SELECT SUM(title_cnt) FROM retiring_titles;
-´´´
+```
+    SELECT SUM(title_cnt) FROM retiring_titles;
+```
 
 - Are there enough qualified, retirement-ready employees in the departments to mentor the next generation of Pewlett Hackard employees?
 
